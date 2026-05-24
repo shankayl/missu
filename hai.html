@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Yes or No?</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff0f5;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    .wrap {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .question {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      margin-bottom: 2rem;
+    }
+
+    .options {
+      display: flex;
+      gap: 32px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .opt label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      color: #333;
+    }
+
+    .opt input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: #e0245e;
+    }
+
+    #no-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      color: #aaa;
+      cursor: not-allowed;
+      position: fixed;
+    }
+
+    #no-wrap input {
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+    }
+
+    .msg {
+      margin-top: 2rem;
+      font-size: 20px;
+      color: #e0245e;
+      min-height: 28px;
+    }
+
+    .hearts-wrap {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      overflow: hidden;
+    }
+
+    .heart {
+      position: absolute;
+      bottom: -40px;
+      animation: floatUp 2.5s ease-in forwards;
+    }
+
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translateY(0) scale(1); }
+      80%  { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-95vh) scale(0.6); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="question"> miss mo na ba ako;(? </p>
+  <div class="options">
+    <div class="opt">
+      <label>
+        <input type="checkbox" id="yes" onchange="onYes()"> Yes
+      </label>
+    </div>
+    <div class="opt" id="no-placeholder" style="visibility:visible;">
+      <label style="color:#aaa; cursor:not-allowed;">
+        <input type="checkbox" disabled style="width:20px;height:20px;"> No
+      </label>
+    </div>
+  </div>
+  <p class="msg" id="msg"></p>
+</div>
+
+<!-- floating no that moves away -->
+<span id="no-wrap" style="display:none;">
+  <input type="checkbox" disabled> No
+</span>
+
+<div class="hearts-wrap" id="hearts"></div>
+
+<script>
+  let interval;
+  let noInitialized = false;
+  const emojis = ['❤️','🧡','💛','💚','💙','💜','🩷','💖','💗','💓','💞','😍','🥰'];
+
+  function spawnHeart() {
+    const el = document.createElement('span');
+    el.className = 'heart';
+    el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    el.style.left = Math.random() * 96 + '%';
+    el.style.fontSize = (22 + Math.random() * 22) + 'px';
+    el.style.animationDuration = (2 + Math.random() * 2) + 's';
+    document.getElementById('hearts').appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+  }
+
+  function initNoPosition() {
+    if (noInitialized) return;
+    const placeholder = document.getElementById('no-placeholder');
+    const rect = placeholder.getBoundingClientRect();
+    const noWrap = document.getElementById('no-wrap');
+    noWrap.style.left = rect.left + 'px';
+    noWrap.style.top = rect.top + 'px';
+    noWrap.style.display = 'flex';
+    noInitialized = true;
+  }
+
+  function onYes() {
+    const cb = document.getElementById('yes');
+    const msg = document.getElementById('msg');
+    const placeholder = document.getElementById('no-placeholder');
+
+    if (cb.checked) {
+      msg.textContent = 'I missss youuu moreeee!!';
+      interval = setInterval(spawnHeart, 250);
+      for (let i = 0; i < 10; i++) setTimeout(spawnHeart, i * 80);
+      placeholder.style.visibility = 'hidden';
+      document.getElementById('no-wrap').style.display = 'none';
+      noInitialized = false;
+    } else {
+      msg.textContent = '';
+      clearInterval(interval);
+      placeholder.style.visibility = 'visible';
+      initNoPosition();
+    }
+  }
+
+  window.addEventListener('load', initNoPosition);
+
+  const noWrap = document.getElementById('no-wrap');
+
+  function moveNo(e) {
+    if (e.cancelable) e.preventDefault();
+    const margin = 90;
+    const maxX = window.innerWidth - margin;
+    const maxY = window.innerHeight - margin;
+    noWrap.style.left = Math.random() * maxX + 'px';
+    noWrap.style.top = Math.random() * maxY + 'px';
+  }
+
+  noWrap.addEventListener('mousemove', moveNo);
+  noWrap.addEventListener('touchstart', moveNo, { passive: false });
+</script>
+
+</body>
+</html>
